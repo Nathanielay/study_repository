@@ -85,6 +85,16 @@ export default async function Page() {
         </section>
       </div>
 
+      <div className="pb-6 text-center text-xs text-gray-500">
+        <a
+          href="https://beian.miit.gov.cn"
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-gray-700"
+        >
+          网站核准号：浙ICP备2022034225号-1
+        </a>
+      </div>
       <TabBar />
     </div>
   );
