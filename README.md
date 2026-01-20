@@ -26,6 +26,10 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Compliance Note
+
+For China mainland deployments, show the website approval number in the center of the homepage footer with a smaller font, and link it to https://beian.miit.gov.cn (网站核准号：浙ICP备2022034225号-1).
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

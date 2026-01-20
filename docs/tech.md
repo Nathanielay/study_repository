@@ -193,6 +193,7 @@ CREATE TABLE user_word_history (
 - 推荐 systemd 作为进程守护，Nginx 作为反向代理。
 - 运行依赖环境变量：`MYSQL_URL`、`AUTH_SECRET`（`SYNC_TOKEN` 可选）。
 - 国内环境对外提供网站服务通常需要ICP备案。
+- 首页底部中间展示网站核准号：浙ICP备2022034225号-1，链接至 https://beian.miit.gov.cn，文字小号。
 
 ## 7. 后续扩展
 - 忘记密码（邮件找回）。
