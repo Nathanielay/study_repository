@@ -1,6 +1,5 @@
 import { drizzle } from 'drizzle-orm/mysql2';
 import { and, eq, gt, sql } from 'drizzle-orm';
-import mysql from 'mysql2/promise';
 import { genSaltSync, hashSync } from 'bcrypt-ts';
 import {
   books,
@@ -14,18 +13,30 @@ import {
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
 // https://authjs.dev/reference/adapter/drizzle
-let pool = mysql.createPool(process.env.MYSQL_URL!);
-let db = drizzle(pool);
+let db: ReturnType<typeof drizzle> | null = null;
+
+function getDb() {
+  let url = process.env.MYSQL_URL;
+  if (!url) {
+    throw new Error('MYSQL_URL is not set');
+  }
+  if (!db) {
+    db = drizzle({ connection: url });
+  }
+  return db;
+}
 
 
 export async function getUser(email: string) {
   let normalized = String(email ?? '').trim().toLowerCase();
+  let db = getDb();
   return await db.select().from(users).where(eq(users.email, normalized));
 }
 
 export async function getUserIdByEmail(email: string) {
   let normalized = String(email ?? '').trim().toLowerCase();
   try {
+    let db = getDb();
     let result = await db
       .select({ id: users.id })
       .from(users)
@@ -49,6 +60,7 @@ export async function createUser(email: string, password: string) {
   let salt = genSaltSync(10);
   let hash = hashSync(password, salt);
 
+  let db = getDb();
   return await db.insert(users).values({ email: normalized, password: hash });
 }
 
@@ -57,6 +69,7 @@ export async function updateUserPassword(email: string, password: string) {
   let salt = genSaltSync(10);
   let hash = hashSync(password, salt);
 
+  let db = getDb();
   return await db
     .update(users)
     .set({ password: hash })
@@ -64,6 +77,7 @@ export async function updateUserPassword(email: string, password: string) {
 }
 
 export async function getBooks() {
+  let db = getDb();
   return await db
     .select({
       bookId: books.bookId,
@@ -77,10 +91,12 @@ export async function getBooks() {
 }
 
 export async function getBookById(bookId: string) {
+  let db = getDb();
   return await db.select().from(books).where(eq(books.bookId, bookId));
 }
 
 export async function getWordById(wordId: string) {
+  let db = getDb();
   return await db.select().from(words).where(eq(words.wordId, wordId));
 }
 
@@ -89,6 +105,7 @@ export async function getWordsByBook(
   startRank: number,
   limit: number
 ) {
+  let db = getDb();
   return await db
     .select({
       wordId: words.wordId,
@@ -103,6 +120,7 @@ export async function getWordsByBook(
 }
 
 export async function getRecentLearning(userId: number) {
+  let db = getDb();
   return await db
     .select()
     .from(userRecentLearning)
@@ -110,6 +128,7 @@ export async function getRecentLearning(userId: number) {
 }
 
 export async function getProgress(userId: number, bookId: string) {
+  let db = getDb();
   return await db
     .select()
     .from(userBookProgress)
@@ -122,6 +141,7 @@ export async function updateProgress(params: {
   wordId: string;
   wordRank: number;
 }) {
+  let db = getDb();
   let existing = await getProgress(params.userId, params.bookId);
   let learnedCount = existing[0]?.learnedCount ?? 0;
 
@@ -189,6 +209,7 @@ export async function upsertBooks(items: Array<{
   tags: unknown;
 }>) {
   if (items.length === 0) return;
+  let db = getDb();
   await db
     .insert(books)
     .values(items)
@@ -211,6 +232,7 @@ export async function upsertWords(items: Array<{
   content: unknown;
 }>) {
   if (items.length === 0) return;
+  let db = getDb();
   await db
     .insert(words)
     .values(items)
