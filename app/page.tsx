@@ -85,7 +85,7 @@ export default async function Page() {
         </section>
       </div>
 
-      <div className="pb-6 text-center text-xs text-gray-500">
+      <div className="mt-2 pb-8 text-center text-[10px] text-gray-500">
         <a
           href="https://beian.miit.gov.cn"
           target="_blank"
