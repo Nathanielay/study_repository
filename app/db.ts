@@ -245,3 +245,8 @@ export async function upsertWords(items: Array<{
       },
     });
 }
+
+export async function pingDb() {
+  let db = getDb();
+  await db.execute(sql`select 1`);
+}
