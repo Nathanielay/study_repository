@@ -25,6 +25,12 @@ ENV HOSTNAME=0.0.0.0
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json pnpm-lock.yaml ./
+COPY drizzle.config.ts ./
+COPY drizzle ./drizzle
+COPY migrations ./migrations
+COPY tsconfig.json ./
 
 EXPOSE 3000
 
