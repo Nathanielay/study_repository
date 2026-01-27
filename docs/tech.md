@@ -130,6 +130,10 @@ CREATE TABLE user_word_history (
 - `GET /api/words/:wordId`
 - 返回字段：`content`（完整 JSON）
 
+#### 健康检查
+- `GET /api/health`
+- 返回字段：`ok`（包含 DB 连接检查）
+
 #### 获取最近学习
 - `GET /api/me/recent`
 - 返回：`book_id`, `last_word_id`, `last_word_rank`
@@ -189,8 +193,8 @@ CREATE TABLE user_word_history (
 - 数据库连接依赖网络直连，使用代理时需确保 MySQL 地址可达。
 
 ## 7. 部署与运行
-- 生产构建使用 `pnpm build`，运行使用 `pnpm start`。
-- 推荐 systemd 作为进程守护，Nginx 作为反向代理。
+- CI 使用 GitHub Actions 构建 Docker 镜像并推送至 GHCR。
+- 服务器通过 `scripts/deploy.sh` 进行蓝绿发布（3001/3002）与 Nginx 切流量。
 - 运行依赖环境变量：`MYSQL_URL`、`AUTH_SECRET`（`SYNC_TOKEN` 可选）。
 - 国内环境对外提供网站服务通常需要ICP备案。
 - 首页底部中间展示网站核准号：浙ICP备2022034225号-1，链接至 https://beian.miit.gov.cn，文字小号。

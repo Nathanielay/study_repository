@@ -51,6 +51,8 @@
   - `POST /api/admin/sync/books`：同步词书。
   - `POST /api/admin/sync/words`：同步单词。
   - 如设置 `SYNC_TOKEN`，需在请求头提供 `x-sync-token`。
+- 健康检查：
+  - `GET /api/health`：应用 + DB 连通性检查。
 
 ## 3. 数据库交互逻辑
 
@@ -114,12 +116,11 @@
 
 ## 7. 部署与运维
 ### 7.1 构建与运行
-- 生产构建：`pnpm build`
-- 生产运行：`pnpm start`
-- 运行产物位于 `.next/`，服务模式为 Node（非纯静态站点）。
+- 镜像构建：GitHub Actions 构建并推送至 GHCR（`ghcr.io/<owner>/<repo>`）。
+- 运行方式：Docker 镜像蓝绿发布（3001/3002）。
+- 发布脚本：`scripts/deploy.sh`（包含健康检查与切流量）。
 
 ### 7.2 systemd 与 Nginx
-- systemd 用于进程守护，`User=` 需为系统中存在的用户。
-- Nginx 反向代理到 `127.0.0.1:3000`，提供域名与 HTTPS 入口。
+- Nginx 反向代理到 `127.0.0.1:3001/3002`，切流量使用 `nginx -t` + reload。
 - 国内环境对外提供网站服务通常需要ICP备案。
 - 首页底部中间展示网站核准号：浙ICP备2022034225号-1，链接至 https://beian.miit.gov.cn，文字小号。

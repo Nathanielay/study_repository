@@ -27,8 +27,8 @@
 
 # 部署与运维
 ## 运行方式
-- 生产环境使用 `pnpm build` + `pnpm start`。
-- systemd 守护进程，反向代理使用 Nginx，入口指向 `127.0.0.1:3000`。
+- 生产环境使用 Docker 镜像部署，镜像由 GitHub Actions 构建并推送至 GHCR。
+- 服务器通过 `scripts/deploy.sh` 执行蓝绿发布（3001/3002），Nginx 反向代理切流量。
 
 ## 常见问题
 - systemd 报错 `status=217/USER`：`User=` 配置为不存在的系统用户。
@@ -64,6 +64,7 @@
 - 单词：`/api/words/[wordId]`
 - 进度：`/api/me/recent`、`/api/me/progress`
 - 管理同步：`/api/admin/sync/books`、`/api/admin/sync/words`
+- 健康检查：`/api/health`（含 DB 连接）
 
 # 技术栈与核心依赖
 - 前端：Next.js 14（App Router）、React 18、Tailwind CSS
