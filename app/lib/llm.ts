@@ -84,7 +84,7 @@ export async function generateArticleFromLlm(
       throw new Error('LLM response is empty');
     }
 
-    let parsed = JSON.parse(content);
+    let parsed = safeJsonParse(content);
     let title = String(parsed?.title ?? '').trim();
     let contentEn = String(parsed?.content_en ?? '').trim();
     let contentZh = String(parsed?.content_zh ?? '').trim();
@@ -102,5 +102,24 @@ export async function generateArticleFromLlm(
     };
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+function safeJsonParse(raw: string) {
+  let text = raw.trim();
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    let start = text.indexOf('{');
+    let end = text.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      let sliced = text.slice(start, end + 1);
+      return JSON.parse(sliced);
+    }
+    throw new Error('LLM response is not valid JSON');
   }
 }
