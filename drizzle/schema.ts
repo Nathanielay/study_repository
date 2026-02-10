@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { datetime, int, json, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
+import { datetime, int, json, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core';
 
 export const users = mysqlTable('User', {
   id: int('id').primaryKey().autoincrement(),
@@ -56,4 +56,56 @@ export const userWordHistory = mysqlTable('user_word_history', {
   wordId: varchar('word_id', { length: 64 }).notNull(),
   wordRank: int('word_rank').notNull().default(0),
   learnedAt: datetime('learned_at').notNull().default(sql`(now())`),
+});
+
+export const articles = mysqlTable('articles', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id'),
+  scene: varchar('scene', { length: 64 }).notNull(),
+  title: varchar('title', { length: 200 }).notNull(),
+  contentEn: text('content_en').notNull(),
+  contentZh: text('content_zh').notNull(),
+  grammarNotes: text('grammar_notes').notNull(),
+  wordList: json('word_list').notNull(),
+  manualWords: json('manual_words').notNull(),
+  createdAt: datetime('created_at').notNull().default(sql`(now())`),
+});
+
+export const dictations = mysqlTable('dictations', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id'),
+  articleId: int('article_id').notNull(),
+  inputText: text('input_text').notNull(),
+  normalizedText: text('normalized_text').notNull(),
+  score: int('score').notNull(),
+  diffJson: json('diff_json').notNull(),
+  errorWords: json('error_words').notNull(),
+  createdAt: datetime('created_at').notNull().default(sql`(now())`),
+});
+
+export const errorWords = mysqlTable('error_words', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id'),
+  word: varchar('word', { length: 120 }).notNull(),
+  count: int('count').notNull().default(1),
+  lastWrongAt: datetime('last_wrong_at').notNull().default(sql`(now())`),
+  sourceArticleId: int('source_article_id'),
+});
+
+export const reviewQueue = mysqlTable('review_queue', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id'),
+  articleId: int('article_id').notNull(),
+  stage: int('stage').notNull(),
+  reason: varchar('reason', { length: 32 }).notNull(),
+  nextReviewAt: datetime('next_review_at').notNull(),
+  createdAt: datetime('created_at').notNull().default(sql`(now())`),
+});
+
+export const wordNetworkCache = mysqlTable('word_network_cache', {
+  id: int('id').primaryKey().autoincrement(),
+  articleId: int('article_id').notNull(),
+  coreWords: json('core_words').notNull(),
+  items: json('items').notNull(),
+  createdAt: datetime('created_at').notNull().default(sql`(now())`),
 });

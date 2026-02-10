@@ -134,6 +134,20 @@ CREATE TABLE user_word_history (
 - `GET /api/health`
 - 返回字段：`ok`（包含 DB 连接检查）
 
+#### 场景短文生成
+- `POST /api/articles/generate`
+- 入参：`scene`, `wordCount`, `wordSource`, `manualWords`
+- 返回：`articleId`, `contentEn`, `contentZh`, `grammarNotes`, `wordList`
+
+#### 默写提交
+- `POST /api/dictations`
+- 入参：`articleId`, `inputText`
+- 返回：`score`, `diffHtml`, `errors`
+
+#### 复盘词网
+- `GET /api/review/word-network?articleId=xxx`
+- 返回：核心词、短语、中文释义、新词标记与来源
+
 #### 获取最近学习
 - `GET /api/me/recent`
 - 返回：`book_id`, `last_word_id`, `last_word_rank`
@@ -158,6 +172,10 @@ CREATE TABLE user_word_history (
 - `/me`：我的（用户信息与进度）
 - `/learn/:bookId`：学习页（单词卡片 + 下一词）
 - `/word/:wordId`：单词详情
+- `/learn/generate`：场景短文生成与展示
+- `/learn/dictation/:articleId`：短文默写训练
+- `/review/:articleId`：复盘词网
+- `/errors`：错题本
 
 ### 4.2 组件建议
 - `TabBar`：底部 Tab 栏
@@ -191,6 +209,12 @@ CREATE TABLE user_word_history (
 - 对 `book_id`、`word_id` 建索引，提高查询效率。
 - 书籍列表可缓存（如按更新时间）。
 - 数据库连接依赖网络直连，使用代理时需确保 MySQL 地址可达。
+
+## 6.1 场景短文生成规范
+- 字数：150-2000 个英文单词，考试风格。
+- 场景：需求评审、调试、代码评审、上线事故、写文档。
+- 词库：收藏词库，单篇覆盖约 50 个词，可小幅浮动。
+- 输出包含英文短文、中文意译与逐句语法解析。
 
 ## 7. 部署与运行
 - CI 使用 GitHub Actions 构建 Docker 镜像并推送至 GHCR。

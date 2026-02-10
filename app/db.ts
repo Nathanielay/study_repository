@@ -2,11 +2,16 @@ import { drizzle } from 'drizzle-orm/mysql2';
 import { and, eq, gt, sql } from 'drizzle-orm';
 import { genSaltSync, hashSync } from 'bcrypt-ts';
 import {
+  articles,
   books,
+  dictations,
+  errorWords,
+  reviewQueue,
   userBookProgress,
   userRecentLearning,
   userWordHistory,
   users,
+  wordNetworkCache,
   words,
 } from 'drizzle/schema';
 
@@ -115,6 +120,17 @@ export async function getWordsByBook(
     })
     .from(words)
     .where(and(eq(words.bookId, bookId), gt(words.wordRank, startRank)))
+    .orderBy(words.wordRank)
+    .limit(limit);
+}
+
+export async function getWordsSample(limit: number) {
+  let db = getDb();
+  return await db
+    .select({
+      headWord: words.headWord,
+    })
+    .from(words)
     .orderBy(words.wordRank)
     .limit(limit);
 }
@@ -249,4 +265,160 @@ export async function upsertWords(items: Array<{
 export async function pingDb() {
   let db = getDb();
   await db.execute(sql`select 1`);
+}
+
+export async function createArticle(params: {
+  userId?: number | null;
+  scene: string;
+  title: string;
+  contentEn: string;
+  contentZh: string;
+  grammarNotes: string;
+  wordList: unknown;
+  manualWords: unknown;
+}) {
+  let db = getDb();
+  let result = await db.insert(articles).values({
+    userId: params.userId ?? null,
+    scene: params.scene,
+    title: params.title,
+    contentEn: params.contentEn,
+    contentZh: params.contentZh,
+    grammarNotes: params.grammarNotes,
+    wordList: params.wordList,
+    manualWords: params.manualWords,
+    createdAt: sql`NOW()`,
+  });
+  return result.insertId ?? null;
+}
+
+export async function getArticleById(articleId: number) {
+  let db = getDb();
+  return await db.select().from(articles).where(eq(articles.id, articleId));
+}
+
+export async function createDictation(params: {
+  userId?: number | null;
+  articleId: number;
+  inputText: string;
+  normalizedText: string;
+  score: number;
+  diffJson: unknown;
+  errorWords: unknown;
+}) {
+  let db = getDb();
+  let result = await db.insert(dictations).values({
+    userId: params.userId ?? null,
+    articleId: params.articleId,
+    inputText: params.inputText,
+    normalizedText: params.normalizedText,
+    score: params.score,
+    diffJson: params.diffJson,
+    errorWords: params.errorWords,
+    createdAt: sql`NOW()`,
+  });
+  return result.insertId ?? null;
+}
+
+export async function listErrorWords(userId?: number | null) {
+  let db = getDb();
+  if (userId) {
+    return await db
+      .select()
+      .from(errorWords)
+      .where(eq(errorWords.userId, userId))
+      .orderBy(errorWords.lastWrongAt);
+  }
+  return await db
+    .select()
+    .from(errorWords)
+    .orderBy(errorWords.lastWrongAt);
+}
+
+export async function upsertErrorWord(params: {
+  userId?: number | null;
+  word: string;
+  sourceArticleId?: number | null;
+}) {
+  let db = getDb();
+  await db
+    .insert(errorWords)
+    .values({
+      userId: params.userId ?? null,
+      word: params.word,
+      count: 1,
+      lastWrongAt: sql`NOW()`,
+      sourceArticleId: params.sourceArticleId ?? null,
+    })
+    .onDuplicateKeyUpdate({
+      set: {
+        count: sql`count + 1`,
+        lastWrongAt: sql`NOW()`,
+        sourceArticleId: params.sourceArticleId ?? null,
+      },
+    });
+}
+
+export async function getWordNetworkCache(articleId: number) {
+  let db = getDb();
+  return await db
+    .select()
+    .from(wordNetworkCache)
+    .where(eq(wordNetworkCache.articleId, articleId));
+}
+
+export async function upsertWordNetworkCache(params: {
+  articleId: number;
+  coreWords: unknown;
+  items: unknown;
+}) {
+  let db = getDb();
+  await db
+    .insert(wordNetworkCache)
+    .values({
+      articleId: params.articleId,
+      coreWords: params.coreWords,
+      items: params.items,
+      createdAt: sql`NOW()`,
+    })
+    .onDuplicateKeyUpdate({
+      set: {
+        coreWords: params.coreWords,
+        items: params.items,
+        createdAt: sql`NOW()`,
+      },
+    });
+}
+
+export async function createReviewQueueItem(params: {
+  userId?: number | null;
+  articleId: number;
+  stage: number;
+  reason: string;
+  nextReviewAt: Date;
+}) {
+  let db = getDb();
+  await db.insert(reviewQueue).values({
+    userId: params.userId ?? null,
+    articleId: params.articleId,
+    stage: params.stage,
+    reason: params.reason,
+    nextReviewAt: params.nextReviewAt,
+    createdAt: sql`NOW()`,
+  });
+}
+
+export async function getReviewQueue(userId?: number | null) {
+  let db = getDb();
+  if (userId) {
+    return await db
+      .select()
+      .from(reviewQueue)
+      .where(eq(reviewQueue.userId, userId))
+      .orderBy(reviewQueue.nextReviewAt);
+  }
+  return await db
+    .select()
+    .from(reviewQueue)
+    .orderBy(reviewQueue.nextReviewAt);
 }
