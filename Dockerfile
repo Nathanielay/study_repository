@@ -30,6 +30,7 @@ COPY package.json pnpm-lock.yaml ./
 COPY drizzle.config.ts ./
 COPY drizzle ./drizzle
 COPY migrations ./migrations
+COPY scripts ./scripts
 COPY tsconfig.json ./
 
 EXPOSE 3000
