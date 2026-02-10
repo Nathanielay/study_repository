@@ -3,6 +3,8 @@ import { createArticle, getWordsSample } from 'app/db';
 import { tokenize } from 'app/lib/dictation';
 import { generateArticleFromLlm } from 'app/lib/llm';
 
+export const dynamic = 'force-dynamic';
+
 const DEFAULT_WORD_COUNT = 50;
 const MIN_WORD_COUNT = 10;
 const MAX_WORD_COUNT = 80;

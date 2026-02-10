@@ -11,6 +11,8 @@ import {
   tokenize,
 } from 'app/lib/dictation';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   let body = await request.json();
   let articleId = Number(body?.articleId ?? 0);

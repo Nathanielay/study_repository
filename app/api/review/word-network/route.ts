@@ -6,6 +6,8 @@ import {
   upsertWordNetworkCache,
 } from 'app/db';
 
+export const dynamic = 'force-dynamic';
+
 const CORE_WORD_COUNT = 5;
 const PHRASE_COUNT = 2;
 
