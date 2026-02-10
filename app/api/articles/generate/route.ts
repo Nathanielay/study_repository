@@ -5,9 +5,9 @@ import { generateArticleFromLlm } from 'app/lib/llm';
 
 export const dynamic = 'force-dynamic';
 
-const DEFAULT_WORD_COUNT = 50;
+const DEFAULT_WORD_COUNT = 35;
 const MIN_WORD_COUNT = 10;
-const MAX_WORD_COUNT = 80;
+const MAX_WORD_COUNT = 50;
 
 function buildPrompt(scene: string, words: string[], manualWords: string[]) {
   let wordList = words.join(', ');
@@ -28,11 +28,25 @@ function buildPrompt(scene: string, words: string[], manualWords: string[]) {
   ].join('\n');
 }
 
+function isWordCovered(word: string, tokens: Set<string>) {
+  if (tokens.has(word)) return true;
+  if (tokens.has(`${word}s`)) return true;
+  if (tokens.has(`${word}es`)) return true;
+  if (tokens.has(`${word}ed`)) return true;
+  if (tokens.has(`${word}ing`)) return true;
+  if (word.endsWith('y') && tokens.has(`${word.slice(0, -1)}ies`)) return true;
+  if (word.endsWith('e') && tokens.has(`${word.slice(0, -1)}ed`)) return true;
+  if (word.endsWith('e') && tokens.has(`${word.slice(0, -1)}ing`)) return true;
+  if (word.endsWith('f') && tokens.has(`${word.slice(0, -1)}ves`)) return true;
+  if (word.endsWith('fe') && tokens.has(`${word.slice(0, -2)}ves`)) return true;
+  return false;
+}
+
 function countCoverage(words: string[], content: string) {
   let tokens = new Set(tokenize(content));
   let covered = 0;
   for (let word of words) {
-    if (tokens.has(word.toLowerCase())) {
+    if (isWordCovered(word.toLowerCase(), tokens)) {
       covered += 1;
     }
   }
