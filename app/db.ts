@@ -289,7 +289,8 @@ export async function createArticle(params: {
     manualWords: params.manualWords,
     createdAt: sql`NOW()`,
   });
-  return result.insertId ?? null;
+  let insertId = (result as { insertId?: number }).insertId ?? null;
+  return insertId;
 }
 
 export async function getArticleById(articleId: number) {
@@ -317,7 +318,8 @@ export async function createDictation(params: {
     errorWords: params.errorWords,
     createdAt: sql`NOW()`,
   });
-  return result.insertId ?? null;
+  let insertId = (result as { insertId?: number }).insertId ?? null;
+  return insertId;
 }
 
 export async function listErrorWords(userId?: number | null) {
