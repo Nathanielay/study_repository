@@ -19,10 +19,13 @@ export async function getRedisClient() {
     });
   }
   if (!connecting) {
-    connecting = client.connect().catch((err) => {
+    connecting = client
+      .connect()
+      .then(() => undefined)
+      .catch((err) => {
       console.error('redis connect failed', err);
       connecting = null;
-    });
+      });
   }
   await connecting;
   return client;
