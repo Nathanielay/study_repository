@@ -24,7 +24,7 @@ function buildPrompt(scene: string, words: string[], manualWords: string[]) {
     '3) Output JSON only with keys: title, content_en, content_zh, grammar_notes.',
     '4) Do not wrap the JSON in code fences.',
     '5) content_zh is a natural Chinese translation.',
-    '6) grammar_notes provides detailed, sentence-by-sentence grammar analysis.',
+    '6) grammar_notes provides detailed, sentence-by-sentence grammar analysis in Chinese.',
   ].join('\n');
 }
 
