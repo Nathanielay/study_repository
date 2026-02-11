@@ -3,12 +3,14 @@ import { createArticle, getWordsSample } from 'app/db';
 import { tokenize } from 'app/lib/dictation';
 import { generateArticleFromLlm } from 'app/lib/llm';
 import { withConcurrencyLimit } from 'app/lib/limiter';
+import { redisGetJson, redisSetJson } from 'app/lib/redis';
 
 export const dynamic = 'force-dynamic';
 
 const DEFAULT_WORD_COUNT = 35;
 const MIN_WORD_COUNT = 10;
 const MAX_WORD_COUNT = 50;
+const DEFAULT_CACHE_TTL_SECONDS = 86400;
 
 function buildPrompt(scene: string, words: string[], manualWords: string[]) {
   let wordList = words.join(', ');
@@ -84,8 +86,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'word list is empty' }, { status: 400 });
     }
 
+    let cacheKey = [
+      'article',
+      scene,
+      wordCount,
+      wordList.join('|'),
+      manualWords.join('|'),
+    ].join(':');
     let prompt = buildPrompt(scene, wordList, manualWords);
-    let article = await withConcurrencyLimit(() => generateArticleFromLlm(prompt));
+    let cached = await redisGetJson<{
+      title: string;
+      content_en: string;
+      content_zh: string;
+      grammar_notes: string;
+    }>(cacheKey);
+
+    let article =
+      cached ??
+      (await withConcurrencyLimit(() => generateArticleFromLlm(prompt)));
     let coverage = countCoverage(wordList, article.content_en);
     if (coverage.total > 0 && coverage.covered / coverage.total < 0.8) {
       return NextResponse.json(
@@ -111,6 +129,12 @@ export async function POST(request: Request) {
       wordList,
       manualWords,
     });
+
+    if (!cached) {
+      let ttlSeconds = Number(process.env.LLM_CACHE_TTL ?? DEFAULT_CACHE_TTL_SECONDS);
+      if (!Number.isFinite(ttlSeconds)) ttlSeconds = DEFAULT_CACHE_TTL_SECONDS;
+      await redisSetJson(cacheKey, article, ttlSeconds);
+    }
 
     return NextResponse.json({
       articleId,
