@@ -104,9 +104,8 @@ async function runOnce() {
 
   const conn = await mysql.createConnection(url);
   try {
-    const [tasks] = await conn.execute(
-      "SELECT * FROM article_tasks WHERE status='pending' ORDER BY id ASC LIMIT ?",
-      [MAX_BATCH]
+    const [tasks] = await conn.query(
+      `SELECT * FROM article_tasks WHERE status='pending' ORDER BY id ASC LIMIT ${MAX_BATCH}`
     );
 
     for (const task of tasks) {
