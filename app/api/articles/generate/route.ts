@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createArticle, getWordsSample } from 'app/db';
 import { tokenize } from 'app/lib/dictation';
 import { generateArticleFromLlm } from 'app/lib/llm';
+import { withConcurrencyLimit } from 'app/lib/limiter';
 
 export const dynamic = 'force-dynamic';
 
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
     }
 
     let prompt = buildPrompt(scene, wordList, manualWords);
-    let article = await generateArticleFromLlm(prompt);
+    let article = await withConcurrencyLimit(() => generateArticleFromLlm(prompt));
     let coverage = countCoverage(wordList, article.content_en);
     if (coverage.total > 0 && coverage.covered / coverage.total < 0.8) {
       return NextResponse.json(
