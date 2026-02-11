@@ -139,6 +139,12 @@ CREATE TABLE user_word_history (
 - 入参：`scene`, `wordCount`, `wordSource`, `manualWords`
 - 返回：`articleId`, `contentEn`, `contentZh`, `grammarNotes`, `wordList`
 
+#### 异步生成任务
+- `POST /api/articles/tasks`
+- 返回：`taskId`
+- `GET /api/articles/tasks/[taskId]`
+- 返回：`status`, `articleId`, `error`, `article`
+
 #### 默写提交
 - `POST /api/dictations`
 - 入参：`articleId`, `inputText`
@@ -213,8 +219,8 @@ CREATE TABLE user_word_history (
 ## 6.1 场景短文生成规范
 - 字数：150-2000 个英文单词，考试风格。
 - 场景：需求评审、调试、代码评审、上线事故、写文档。
-- 词库：收藏词库，单篇覆盖约 50 个词，可小幅浮动。
-- 输出包含英文短文、中文意译与中文逐句语法解析。
+- 词库：收藏词库，单篇覆盖约 35 个词（最大 50），可小幅浮动。
+- 输出包含英文短文、中文意译与中文逐句语法解析，覆盖词高亮。
 
 ## 7. 部署与运行
 - CI 使用 GitHub Actions 构建 Docker 镜像并推送至 GHCR。

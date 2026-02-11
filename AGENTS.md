@@ -6,6 +6,13 @@
 - `MYSQL_URL`：MySQL 连接串，数据与进度存储依赖此项。
 - `AUTH_SECRET`：NextAuth 使用的密钥，用于会话加密与签名。
 - `SYNC_TOKEN`：后台同步接口的可选鉴权令牌（请求头 `x-sync-token`）。
+- `ARK_API_KEY` / `LLM_API_KEY`：LLM 访问密钥。
+- `LLM_BASE_URL`：LLM API 地址（默认 https://ark.cn-beijing.volces.com/api/v3）。
+- `LLM_MODEL`：LLM 模型名。
+- `LLM_TIMEOUT`：LLM 超时（秒）。
+- `LLM_CONCURRENCY`：LLM 并发上限。
+- `REDIS_URL`：Redis 连接串（用于生成缓存）。
+- `LLM_CACHE_TTL`：缓存 TTL（秒）。
  
 ## 环境注意事项
 - 数据库连接依赖网络直连；如开启系统代理，请确保 `MYSQL_URL` 指向的地址不走代理或放行端口。
@@ -24,6 +31,7 @@
 - `pnpm lint`
 - `pnpm drizzle:push`（同步 Drizzle schema）
 - `node scripts/run-migrations.js`（执行 `migrations/` SQL）
+- `node scripts/article-worker.js`（异步生成 worker）
 
 # 部署与运维
 ## 运行方式
@@ -65,6 +73,7 @@
 - 进度：`/api/me/recent`、`/api/me/progress`
 - 管理同步：`/api/admin/sync/books`、`/api/admin/sync/words`
 - 健康检查：`/api/health`（含 DB 连接）
+- 场景短文任务：`/api/articles/tasks`、`/api/articles/tasks/[taskId]`
 
 # 技术栈与核心依赖
 - 前端：Next.js 14（App Router）、React 18、Tailwind CSS
