@@ -22,9 +22,14 @@ export default async function DictationPage({
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <div className="mx-auto max-w-screen-sm px-5 py-8 space-y-4">
-        <header>
-          <p className="text-xs text-gray-500">{article.scene}</p>
-          <h1 className="text-xl font-semibold">{article.title}</h1>
+        <header className="flex items-start justify-between">
+          <div>
+            <p className="text-xs text-gray-500">{article.scene}</p>
+            <h1 className="text-xl font-semibold">{article.title}</h1>
+          </div>
+          <Link href="/learn/generate" className="text-sm font-semibold text-gray-600">
+            Back
+          </Link>
         </header>
 
         <details className="rounded-xl border border-gray-200 bg-white p-4">

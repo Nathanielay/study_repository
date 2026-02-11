@@ -47,7 +47,12 @@ export default function GeneratePage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <div className="mx-auto max-w-screen-sm px-5 py-8">
-        <h1 className="text-xl font-semibold">Generate Scenario Story</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold">Generate Scenario Story</h1>
+          <Link href="/" className="text-sm font-semibold text-gray-600">
+            Back
+          </Link>
+        </div>
         <form onSubmit={onSubmit} className="mt-4 space-y-3 text-sm">
           <label className="block">
             <span className="font-semibold">Scene</span>
@@ -99,15 +104,17 @@ export default function GeneratePage() {
           <div className="mt-6 space-y-4 text-sm">
             <div className="rounded-xl border border-gray-200 bg-white p-4">
               <p className="font-semibold">English</p>
-              <p className="mt-2 whitespace-pre-wrap text-gray-700">
-                {article.contentEn}
-              </p>
+              <div
+                className="mt-2 whitespace-pre-wrap text-gray-700"
+                dangerouslySetInnerHTML={{ __html: article.contentEn }}
+              />
             </div>
             <div className="rounded-xl border border-gray-200 bg-white p-4">
               <p className="font-semibold">Chinese</p>
-              <p className="mt-2 whitespace-pre-wrap text-gray-700">
-                {article.contentZh}
-              </p>
+              <div
+                className="mt-2 whitespace-pre-wrap text-gray-700"
+                dangerouslySetInnerHTML={{ __html: article.contentZh }}
+              />
             </div>
             <div className="rounded-xl border border-gray-200 bg-white p-4">
               <p className="font-semibold">Grammar</p>

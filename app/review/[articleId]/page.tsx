@@ -44,9 +44,14 @@ export default function ReviewPage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <div className="mx-auto max-w-screen-sm px-5 py-8">
-        <header className="mb-4">
-          <h1 className="text-xl font-semibold">Word Network Review</h1>
-          <p className="text-xs text-gray-500">5 core words, 2 phrases each</p>
+        <header className="mb-4 flex items-start justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">Word Network Review</h1>
+            <p className="text-xs text-gray-500">5 core words, 2 phrases each</p>
+          </div>
+          <Link href="/learn/generate" className="text-sm font-semibold text-gray-600">
+            Back
+          </Link>
         </header>
 
         {loading ? <p className="text-sm">Loading...</p> : null}

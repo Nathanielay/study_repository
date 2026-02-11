@@ -21,10 +21,13 @@ function buildPrompt(scene: string, words: string[], manualWords: string[]) {
     'Requirements:',
     '1) Write a 150-2000 English-word passage in a formal exam reading style.',
     '2) Cover the target words with natural usage; inflections are allowed.',
-    '3) Output JSON only with keys: title, content_en, content_zh, grammar_notes.',
-    '4) Do not wrap the JSON in code fences.',
-    '5) content_zh is a natural Chinese translation.',
-    '6) grammar_notes provides detailed, sentence-by-sentence grammar analysis in Chinese.',
+    '3) Use common English words for all other wording.',
+    '4) Highlight target words in the English passage with <mark> tags.',
+    '5) Highlight the corresponding Chinese translations in content_zh with <mark> tags.',
+    '6) Output JSON only with keys: title, content_en, content_zh, grammar_notes.',
+    '7) Do not wrap the JSON in code fences.',
+    '8) content_zh is a natural Chinese translation.',
+    '9) grammar_notes provides detailed, sentence-by-sentence grammar analysis in Chinese.',
   ].join('\n');
 }
 

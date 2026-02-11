@@ -39,7 +39,12 @@ export default function ReviewQueuePage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <div className="mx-auto max-w-screen-sm px-5 py-8">
-        <h1 className="text-xl font-semibold">Review Queue</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold">Review Queue</h1>
+          <a href="/learn/generate" className="text-sm font-semibold text-gray-600">
+            Back
+          </a>
+        </div>
 
         {loading ? <p className="text-sm">Loading...</p> : null}
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
