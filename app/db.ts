@@ -3,6 +3,7 @@ import { and, eq, gt, sql } from 'drizzle-orm';
 import { genSaltSync, hashSync } from 'bcrypt-ts';
 import {
   articles,
+  articleTasks,
   books,
   dictations,
   errorWords,
@@ -133,6 +134,52 @@ export async function getWordsSample(limit: number) {
     .from(words)
     .orderBy(words.wordRank)
     .limit(limit);
+}
+
+export async function createArticleTask(params: {
+  userId?: number | null;
+  scene: string;
+  wordCount: number;
+  manualWords: unknown;
+}) {
+  let db = getDb();
+  let result = await db.insert(articleTasks).values({
+    userId: params.userId ?? null,
+    scene: params.scene,
+    wordCount: params.wordCount,
+    manualWords: params.manualWords,
+    status: 'pending',
+    createdAt: sql`NOW()`,
+    updatedAt: sql`NOW()`,
+  });
+  let insertId = (result as { insertId?: number }).insertId ?? null;
+  return insertId;
+}
+
+export async function getArticleTaskById(taskId: number) {
+  let db = getDb();
+  return await db
+    .select()
+    .from(articleTasks)
+    .where(eq(articleTasks.id, taskId));
+}
+
+export async function updateArticleTask(params: {
+  taskId: number;
+  status: string;
+  error?: string | null;
+  articleId?: number | null;
+}) {
+  let db = getDb();
+  await db
+    .update(articleTasks)
+    .set({
+      status: params.status,
+      error: params.error ?? null,
+      articleId: params.articleId ?? null,
+      updatedAt: sql`NOW()`,
+    })
+    .where(eq(articleTasks.id, params.taskId));
 }
 
 export async function getRecentLearning(userId: number) {

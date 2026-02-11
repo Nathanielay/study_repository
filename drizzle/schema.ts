@@ -109,3 +109,16 @@ export const wordNetworkCache = mysqlTable('word_network_cache', {
   items: json('items').notNull(),
   createdAt: datetime('created_at').notNull().default(sql`(now())`),
 });
+
+export const articleTasks = mysqlTable('article_tasks', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id'),
+  scene: varchar('scene', { length: 64 }).notNull(),
+  wordCount: int('word_count').notNull().default(35),
+  manualWords: json('manual_words').notNull(),
+  status: varchar('status', { length: 32 }).notNull(),
+  error: text('error'),
+  articleId: int('article_id'),
+  createdAt: datetime('created_at').notNull().default(sql`(now())`),
+  updatedAt: datetime('updated_at').notNull().default(sql`(now())`),
+});
