@@ -178,7 +178,24 @@ async function runOnce() {
   }
 }
 
-runOnce().catch((err) => {
+const DEFAULT_INTERVAL_MS = 5000;
+
+async function runLoop() {
+  const rawInterval = Number(getEnv('WORKER_INTERVAL_MS', String(DEFAULT_INTERVAL_MS)));
+  const intervalMs = Number.isFinite(rawInterval) && rawInterval > 0
+    ? rawInterval
+    : DEFAULT_INTERVAL_MS;
+  while (true) {
+    try {
+      await runOnce();
+    } catch (err) {
+      console.error(err);
+    }
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+}
+
+runLoop().catch((err) => {
   console.error(err);
   process.exit(1);
 });
