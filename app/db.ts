@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/mysql2';
-import { and, eq, gt, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, sql } from 'drizzle-orm';
 import { genSaltSync, hashSync } from 'bcrypt-ts';
 import {
   articles,
@@ -355,7 +355,7 @@ export async function listArticles(limit = 50) {
       createdAt: articles.createdAt,
     })
     .from(articles)
-    .orderBy(articles.createdAt, 'desc')
+    .orderBy(desc(articles.createdAt))
     .limit(limit);
 }
 
