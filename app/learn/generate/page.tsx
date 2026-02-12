@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { TabBar } from 'app/components/tab-bar';
 
 const SCENES = [
   'requirement review',
@@ -85,12 +86,15 @@ export default function GeneratePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <div className="mx-auto max-w-screen-sm px-5 py-8">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Generate Scenario Story</h1>
-          <Link href="/" className="text-sm font-semibold text-gray-600">
-            Back
+          <Link
+            href="/learn/articles"
+            className="text-sm font-semibold text-gray-600"
+          >
+            Articles
           </Link>
         </div>
         <form onSubmit={onSubmit} className="mt-4 space-y-3 text-sm">
@@ -145,14 +149,6 @@ export default function GeneratePage() {
 
         {article ? (
           <div className="mt-6 space-y-4 text-sm">
-            <div className="flex items-center gap-3">
-              <Link
-                href="/learn/articles"
-                className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700"
-              >
-                View articles
-              </Link>
-            </div>
             <div className="rounded-xl border border-gray-200 bg-white p-4">
               <p className="font-semibold">English</p>
               <div
@@ -184,6 +180,7 @@ export default function GeneratePage() {
           </div>
         ) : null}
       </div>
+      <TabBar />
     </div>
   );
 }

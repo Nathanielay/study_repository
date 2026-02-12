@@ -56,10 +56,10 @@ export default function ArticlesPage() {
               <p className="text-xs text-gray-500">{item.scene}</p>
               <p className="font-semibold">{item.title}</p>
               <Link
-                href={`/learn/dictation/${item.id}`}
+                href={`/learn/articles/${item.id}`}
                 className="mt-2 inline-flex text-xs font-semibold text-gray-700"
               >
-                Start dictation
+                View details
               </Link>
             </div>
           ))}

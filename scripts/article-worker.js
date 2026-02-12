@@ -121,14 +121,17 @@ async function runOnce() {
         manualWords = [];
       }
 
-      const wordCount = Number(task.word_count || DEFAULT_WORD_COUNT);
+      let wordCount = Number(task.word_count || DEFAULT_WORD_COUNT);
+      if (!Number.isFinite(wordCount) || wordCount <= 0) {
+        wordCount = DEFAULT_WORD_COUNT;
+      }
+      wordCount = Math.min(Math.max(Math.floor(wordCount), 1), 200);
       let wordList = [];
       if (manualWords.length > 0) {
         wordList = manualWords.map((w) => String(w || '').trim()).filter(Boolean);
       } else {
-        const [rows] = await conn.execute(
-          'SELECT head_word AS headWord FROM words ORDER BY word_rank LIMIT ?',
-          [wordCount]
+        const [rows] = await conn.query(
+          `SELECT head_word AS headWord FROM words ORDER BY word_rank LIMIT ${wordCount}`
         );
         wordList = rows.map((row) => row.headWord);
       }
