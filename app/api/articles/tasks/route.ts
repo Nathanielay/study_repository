@@ -26,5 +26,12 @@ export async function POST(request: Request) {
     manualWords,
   });
 
+  if (!taskId) {
+    return NextResponse.json(
+      { error: 'failed to create task' },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({ taskId });
 }

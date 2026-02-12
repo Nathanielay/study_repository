@@ -151,9 +151,8 @@ export async function createArticleTask(params: {
     status: 'pending',
     createdAt: sql`NOW()`,
     updatedAt: sql`NOW()`,
-  });
-  let insertId = (result as { insertId?: number }).insertId ?? null;
-  return insertId;
+  }).$returningId();
+  return result[0]?.id ?? null;
 }
 
 export async function getArticleTaskById(taskId: number) {
