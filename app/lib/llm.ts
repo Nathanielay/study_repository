@@ -8,6 +8,7 @@ type LlmArticle = {
   content_en: string;
   content_zh: string;
   grammar_notes: string;
+  glossary?: { word: string; translation: string }[];
 };
 
 const DEFAULT_BASE_URL = 'https://ark.cn-beijing.volces.com/api/v3';
@@ -89,6 +90,13 @@ export async function generateArticleFromLlm(
     let contentEn = String(parsed?.content_en ?? '').trim();
     let contentZh = String(parsed?.content_zh ?? '').trim();
     let grammarNotes = String(parsed?.grammar_notes ?? '').trim();
+    let rawGlossary = Array.isArray(parsed?.glossary) ? parsed.glossary : [];
+    let glossary = rawGlossary
+      .map((entry: any) => ({
+        word: String(entry?.word ?? '').trim(),
+        translation: String(entry?.translation ?? '').trim(),
+      }))
+      .filter((entry: { word: string; translation: string }) => entry.word && entry.translation);
 
     if (!title || !contentEn || !contentZh || !grammarNotes) {
       throw new Error('LLM response missing required fields');
@@ -99,6 +107,7 @@ export async function generateArticleFromLlm(
       content_en: contentEn,
       content_zh: contentZh,
       grammar_notes: grammarNotes,
+      glossary,
     };
   } finally {
     clearTimeout(timeout);

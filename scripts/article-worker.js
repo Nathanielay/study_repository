@@ -40,11 +40,31 @@ function buildPrompt(scene, words, manualWords) {
     '3) Use common English words for all other wording.',
     '4) Highlight target words in the English passage with <mark> tags.',
     '5) Highlight the corresponding Chinese translations in content_zh with <mark> tags.',
-    '6) Output JSON only with keys: title, content_en, content_zh, grammar_notes.',
-    '7) Do not wrap the JSON in code fences.',
-    '8) content_zh is a natural Chinese translation.',
-    '9) grammar_notes provides detailed, sentence-by-sentence grammar analysis in Chinese.',
+    '6) Output JSON only with keys: title, content_en, content_zh, grammar_notes, glossary.',
+    '7) glossary is an array of {word, translation} for each target word.',
+    '8) Do not wrap the JSON in code fences.',
+    '9) content_zh is a natural Chinese translation.',
+    '10) grammar_notes provides detailed, sentence-by-sentence grammar analysis in Chinese.',
   ].join('\n');
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function stripMarkTags(value) {
+  return value.replace(/<\/?mark>/g, '');
+}
+
+function highlightByGlossary(content, glossary) {
+  let next = stripMarkTags(content);
+  for (const entry of glossary) {
+    const translation = String(entry?.translation || '').trim();
+    if (!translation) continue;
+    const pattern = new RegExp(escapeRegExp(translation), 'g');
+    next = next.replace(pattern, `<mark>${translation}</mark>`);
+  }
+  return next;
 }
 
 function safeJsonParse(raw) {
@@ -147,6 +167,14 @@ async function runOnce() {
       try {
         const prompt = buildPrompt(task.scene, wordList, manualWords);
         const article = await callLlm(prompt);
+        const glossary = Array.isArray(article?.glossary) ? article.glossary : [];
+        let contentZh = String(article.content_zh || '').trim();
+        if (!contentZh.includes('<mark>')) {
+          if (glossary.length === 0) {
+            throw new Error('LLM response missing glossary for highlights');
+          }
+          contentZh = highlightByGlossary(contentZh, glossary);
+        }
 
         const [result] = await conn.execute(
           'INSERT INTO articles (user_id, scene, title, content_en, content_zh, grammar_notes, word_list, manual_words, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
@@ -155,7 +183,7 @@ async function runOnce() {
             task.scene,
             String(article.title || '').trim(),
             String(article.content_en || '').trim(),
-            String(article.content_zh || '').trim(),
+            contentZh,
             String(article.grammar_notes || '').trim(),
             JSON.stringify(wordList),
             JSON.stringify(manualWords),

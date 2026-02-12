@@ -27,11 +27,34 @@ function buildPrompt(scene: string, words: string[], manualWords: string[]) {
     '3) Use common English words for all other wording.',
     '4) Highlight target words in the English passage with <mark> tags.',
     '5) Highlight the corresponding Chinese translations in content_zh with <mark> tags.',
-    '6) Output JSON only with keys: title, content_en, content_zh, grammar_notes.',
-    '7) Do not wrap the JSON in code fences.',
-    '8) content_zh is a natural Chinese translation.',
-    '9) grammar_notes provides detailed, sentence-by-sentence grammar analysis in Chinese.',
+    '6) Output JSON only with keys: title, content_en, content_zh, grammar_notes, glossary.',
+    '7) glossary is an array of {word, translation} for each target word.',
+    '8) Do not wrap the JSON in code fences.',
+    '9) content_zh is a natural Chinese translation.',
+    '10) grammar_notes provides detailed, sentence-by-sentence grammar analysis in Chinese.',
   ].join('\n');
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function stripMarkTags(value: string) {
+  return value.replace(/<\/?mark>/g, '');
+}
+
+function highlightByGlossary(
+  content: string,
+  glossary: { word: string; translation: string }[]
+) {
+  let next = stripMarkTags(content);
+  for (let entry of glossary) {
+    let translation = entry.translation.trim();
+    if (!translation) continue;
+    let pattern = new RegExp(escapeRegExp(translation), 'g');
+    next = next.replace(pattern, `<mark>${translation}</mark>`);
+  }
+  return next;
 }
 
 function isWordCovered(word: string, tokens: Set<string>) {
@@ -99,11 +122,26 @@ export async function POST(request: Request) {
       content_en: string;
       content_zh: string;
       grammar_notes: string;
+      glossary?: { word: string; translation: string }[];
     }>(cacheKey);
+
+    if (cached && !cached.content_zh.includes('<mark>') && !cached.glossary?.length) {
+      cached = null;
+    }
 
     let article =
       cached ??
       (await withConcurrencyLimit(() => generateArticleFromLlm(prompt)));
+
+    if (!article.content_zh.includes('<mark>')) {
+      if (!article.glossary || article.glossary.length === 0) {
+        throw new Error('LLM response missing glossary for highlights');
+      }
+      article = {
+        ...article,
+        content_zh: highlightByGlossary(article.content_zh, article.glossary),
+      };
+    }
     let coverage = countCoverage(wordList, article.content_en);
     if (coverage.total > 0 && coverage.covered / coverage.total < 0.8) {
       return NextResponse.json(
@@ -142,6 +180,7 @@ export async function POST(request: Request) {
       contentZh: article.content_zh,
       grammarNotes: article.grammar_notes,
       wordList,
+      glossary: article.glossary ?? [],
     });
   } catch (error: any) {
     console.error('generate article failed', error);

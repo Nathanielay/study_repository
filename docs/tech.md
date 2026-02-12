@@ -137,7 +137,8 @@ CREATE TABLE user_word_history (
 #### 场景短文生成
 - `POST /api/articles/generate`
 - 入参：`scene`, `wordCount`, `wordSource`, `manualWords`
-- 返回：`articleId`, `contentEn`, `contentZh`, `grammarNotes`, `wordList`
+- 返回：`articleId`, `contentEn`, `contentZh`, `grammarNotes`, `wordList`, `glossary`
+- `glossary` 为覆盖词与中文翻译映射，用于高亮中文翻译。
 
 #### 异步生成任务
 - `POST /api/articles/tasks`
@@ -184,6 +185,7 @@ CREATE TABLE user_word_history (
 - `/word/:wordId`：单词详情
 - `/learn/generate`：场景短文生成与展示
 - `/learn/articles`：历史短文列表
+- `/learn/articles/:articleId`：短文详情页
 - `/learn/dictation/:articleId`：短文默写训练
 - `/review/:articleId`：复盘词网
 - `/errors`：错题本
