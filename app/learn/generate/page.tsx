@@ -18,30 +18,70 @@ export default function GeneratePage() {
   const [loading, setLoading] = useState(false);
   const [article, setArticle] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [taskStatus, setTaskStatus] = useState<string | null>(null);
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setLoading(true);
     setArticle(null);
     setError(null);
+    setTaskStatus(null);
     let manualList = manualWords
       .split(/[\n,]+/)
       .map((word) => word.trim())
       .filter(Boolean);
 
-    let response = await fetch('/api/articles/generate', {
+    let response = await fetch('/api/articles/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scene, wordCount, manualWords: manualList }),
     });
     let text = await response.text();
     let data = text ? JSON.parse(text) : {};
-    setLoading(false);
     if (!response.ok) {
+      setLoading(false);
       setError(data?.error ?? 'Failed to generate');
       return;
     }
-    setArticle(data);
+
+    let taskId = Number(data?.taskId ?? 0);
+    if (!taskId) {
+      setLoading(false);
+      setError('Failed to create task');
+      return;
+    }
+
+    setTaskStatus('pending');
+
+    let attempts = 0;
+    while (attempts < 120) {
+      attempts += 1;
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      let statusResponse = await fetch(`/api/articles/tasks/${taskId}`);
+      let statusText = await statusResponse.text();
+      let statusData = statusText ? JSON.parse(statusText) : {};
+      if (!statusResponse.ok) {
+        setLoading(false);
+        setError(statusData?.error ?? 'Failed to fetch task');
+        return;
+      }
+
+      let status = String(statusData?.status ?? '');
+      setTaskStatus(status);
+      if (status === 'done') {
+        setLoading(false);
+        setArticle(statusData.article ?? null);
+        return;
+      }
+      if (status === 'failed') {
+        setLoading(false);
+        setError(statusData?.error ?? 'Generation failed');
+        return;
+      }
+    }
+
+    setLoading(false);
+    setError('Generation timeout');
   }
 
   return (
@@ -96,12 +136,23 @@ export default function GeneratePage() {
           >
             {loading ? 'Generating...' : 'Generate'}
           </button>
+          {taskStatus ? (
+            <p className="text-xs text-gray-500">Task status: {taskStatus}</p>
+          ) : null}
         </form>
 
         {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
 
         {article ? (
           <div className="mt-6 space-y-4 text-sm">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/learn/articles"
+                className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700"
+              >
+                View articles
+              </Link>
+            </div>
             <div className="rounded-xl border border-gray-200 bg-white p-4">
               <p className="font-semibold">English</p>
               <div

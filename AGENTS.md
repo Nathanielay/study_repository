@@ -65,6 +65,11 @@
 - `/me`：我的（账号与进度）
 - `/learn/[bookId]`：学习页
 - `/word/[wordId]`：单词详情
+- `/learn/generate`：场景短文生成
+- `/learn/articles`：历史短文列表
+- `/learn/dictation/[articleId]`：短文默写训练
+- `/review/[articleId]`：复盘词网
+- `/errors`：错题本
 
 ## API 接口
 - 认证：`/api/auth/[...nextauth]`、`/api/auth/register`
@@ -74,6 +79,7 @@
 - 管理同步：`/api/admin/sync/books`、`/api/admin/sync/words`
 - 健康检查：`/api/health`（含 DB 连接）
 - 场景短文任务：`/api/articles/tasks`、`/api/articles/tasks/[taskId]`
+- 场景短文列表：`/api/articles`
 
 # 技术栈与核心依赖
 - 前端：Next.js 14（App Router）、React 18、Tailwind CSS

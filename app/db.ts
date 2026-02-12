@@ -345,6 +345,20 @@ export async function getArticleById(articleId: number) {
   return await db.select().from(articles).where(eq(articles.id, articleId));
 }
 
+export async function listArticles(limit = 50) {
+  let db = getDb();
+  return await db
+    .select({
+      id: articles.id,
+      title: articles.title,
+      scene: articles.scene,
+      createdAt: articles.createdAt,
+    })
+    .from(articles)
+    .orderBy(articles.createdAt, 'desc')
+    .limit(limit);
+}
+
 export async function createDictation(params: {
   userId?: number | null;
   articleId: number;

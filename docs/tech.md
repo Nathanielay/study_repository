@@ -145,6 +145,10 @@ CREATE TABLE user_word_history (
 - `GET /api/articles/tasks/[taskId]`
 - 返回：`status`, `articleId`, `error`, `article`
 
+#### 场景短文列表
+- `GET /api/articles`
+- 返回：`items`（`id`, `title`, `scene`, `createdAt`）
+
 #### 默写提交
 - `POST /api/dictations`
 - 入参：`articleId`, `inputText`
@@ -179,6 +183,7 @@ CREATE TABLE user_word_history (
 - `/learn/:bookId`：学习页（单词卡片 + 下一词）
 - `/word/:wordId`：单词详情
 - `/learn/generate`：场景短文生成与展示
+- `/learn/articles`：历史短文列表
 - `/learn/dictation/:articleId`：短文默写训练
 - `/review/:articleId`：复盘词网
 - `/errors`：错题本
