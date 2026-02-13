@@ -111,7 +111,8 @@ export function buildReferenceHighlightHtml(
   let match = regex.exec(referenceText);
   while (match) {
     let value = match[0];
-    let type = /[a-zA-Z0-9']+/.test(value) ? 'word' : 'sep';
+    let type: 'word' | 'sep' =
+      /[a-zA-Z0-9']+/.test(value) ? 'word' : 'sep';
     tokens.push({ type, value });
     match = regex.exec(referenceText);
   }
