@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { BackButton } from 'app/components/back-button';
 import { DictationForm } from 'app/components/dictation-form';
 import { getArticleById } from 'app/db';
@@ -41,21 +40,6 @@ export default async function DictationPage({
         </details>
 
         <DictationForm articleId={articleId} />
-
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href={`/learn/dictation/${articleId}/records`}
-            className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700"
-          >
-            View training records
-          </Link>
-          <Link
-            href={`/review/${articleId}`}
-            className="inline-flex items-center text-sm font-semibold text-gray-700"
-          >
-            Go to review
-          </Link>
-        </div>
       </div>
     </div>
   );

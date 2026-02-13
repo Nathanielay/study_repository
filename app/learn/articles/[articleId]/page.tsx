@@ -21,48 +21,71 @@ export default async function ArticleDetailPage({
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
-      <div className="mx-auto max-w-screen-sm px-5 py-8 space-y-4">
+      <div className="mx-auto max-w-screen-sm px-5 py-8 space-y-6">
         <header className="flex items-start justify-between">
-          <div>
-            <p className="text-xs text-gray-500">{article.scene}</p>
-            <h1 className="text-xl font-semibold">{article.title}</h1>
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+              {article.scene}
+            </p>
+            <h1 className="text-2xl font-semibold leading-tight">{article.title}</h1>
           </div>
           <BackButton />
         </header>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-4">
-          <p className="font-semibold">English</p>
+        <section className="rounded-2xl border border-gray-200 bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Quick Actions
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href={`/learn/dictation/${articleId}`}
+              className="inline-flex items-center rounded-md border border-black px-4 py-2 text-sm font-semibold"
+            >
+              Start dictation
+            </Link>
+            <Link
+              href={`/learn/dictation/${articleId}/records`}
+              className="inline-flex items-center rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700"
+            >
+              View training records
+            </Link>
+            <Link
+              href={`/review/${articleId}`}
+              className="inline-flex items-center rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700"
+            >
+              Go to review
+            </Link>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-gray-200 bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            English
+          </p>
           <div
-            className="mt-2 whitespace-pre-wrap text-gray-700"
+            className="mt-3 whitespace-pre-wrap text-gray-700"
             dangerouslySetInnerHTML={{ __html: article.contentEn }}
           />
-        </div>
+        </section>
 
-        <details className="rounded-xl border border-gray-200 bg-white p-4">
+        <details className="rounded-2xl border border-gray-200 bg-white p-4">
           <summary className="cursor-pointer text-sm font-semibold">
             Chinese Translation
           </summary>
           <div
-            className="mt-2 whitespace-pre-wrap text-gray-700"
+            className="mt-3 whitespace-pre-wrap text-gray-700"
             dangerouslySetInnerHTML={{ __html: article.contentZh }}
           />
         </details>
 
-        <details className="rounded-xl border border-gray-200 bg-white p-4">
+        <details className="rounded-2xl border border-gray-200 bg-white p-4">
           <summary className="cursor-pointer text-sm font-semibold">
             Grammar Notes
           </summary>
-          <p className="mt-2 whitespace-pre-wrap text-gray-700">
+          <p className="mt-3 whitespace-pre-wrap text-gray-700">
             {article.grammarNotes}
           </p>
         </details>
-
-        <Link
-          href={`/learn/dictation/${articleId}`}
-          className="inline-flex items-center rounded-md border border-black px-4 py-2 text-sm font-semibold"
-        >
-          Start dictation
-        </Link>
       </div>
     </div>
   );
