@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BackButton } from 'app/components/back-button';
 import { DictationForm } from 'app/components/dictation-form';
 import { getArticleById } from 'app/db';
 
@@ -27,9 +28,7 @@ export default async function DictationPage({
             <p className="text-xs text-gray-500">{article.scene}</p>
             <h1 className="text-xl font-semibold">{article.title}</h1>
           </div>
-          <Link href="/learn/generate" className="text-sm font-semibold text-gray-600">
-            Back
-          </Link>
+          <BackButton />
         </header>
 
         <details className="rounded-xl border border-gray-200 bg-white p-4">

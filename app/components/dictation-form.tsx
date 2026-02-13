@@ -6,7 +6,7 @@ export function DictationForm({ articleId }: { articleId: number }) {
   const [inputText, setInputText] = useState('');
   const [score, setScore] = useState<number | null>(null);
   const [referenceHtml, setReferenceHtml] = useState<string | null>(null);
-  const [errors, setErrors] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [spellingCount, setSpellingCount] = useState<number | null>(null);
   const [missingCount, setMissingCount] = useState<number | null>(null);
@@ -18,7 +18,7 @@ export function DictationForm({ articleId }: { articleId: number }) {
     setLoading(true);
     setScore(null);
     setReferenceHtml(null);
-    setErrors([]);
+    setErrorMessage(null);
     setAnalysis(null);
     setSpellingCount(null);
     setMissingCount(null);
@@ -32,12 +32,11 @@ export function DictationForm({ articleId }: { articleId: number }) {
     let data = await response.json();
     setLoading(false);
     if (!response.ok) {
-      setErrors([data?.error ?? 'Failed to score']);
+      setErrorMessage(data?.error ?? 'Failed to score');
       return;
     }
     setScore(data.score ?? null);
     setReferenceHtml(data.referenceHtml ?? null);
-    setErrors(Array.isArray(data.errors) ? data.errors : []);
     setAnalysis(data.analysis ?? null);
     setSpellingCount(Number.isFinite(data.spellingCount) ? data.spellingCount : null);
     setMissingCount(Number.isFinite(data.missingCount) ? data.missingCount : null);
@@ -79,16 +78,6 @@ export function DictationForm({ articleId }: { articleId: number }) {
               dangerouslySetInnerHTML={{ __html: referenceHtml }}
             />
           ) : null}
-          {errors.length > 0 ? (
-            <div>
-              <p className="font-semibold">Errors</p>
-              <ul className="list-disc pl-5 text-xs text-gray-600">
-                {errors.map((word) => (
-                  <li key={word}>{word}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
           {analysis ? (
             <div className="rounded-lg border border-gray-200 p-3 text-xs text-gray-700 whitespace-pre-wrap">
               <p className="font-semibold text-sm">LLM Analysis</p>
@@ -97,6 +86,7 @@ export function DictationForm({ articleId }: { articleId: number }) {
           ) : null}
         </div>
       ) : null}
+      {errorMessage ? <p className="mt-3 text-sm text-red-600">{errorMessage}</p> : null}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BackButton } from 'app/components/back-button';
 import { listDictationsByArticle } from 'app/db';
 
 export default async function DictationRecordsPage({
@@ -14,12 +15,7 @@ export default async function DictationRecordsPage({
       <div className="mx-auto max-w-screen-sm px-5 py-8">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Training Records</h1>
-          <Link
-            href={`/learn/dictation/${articleId}`}
-            className="text-sm font-semibold text-gray-600"
-          >
-            Back
-          </Link>
+          <BackButton />
         </div>
 
         <div className="mt-4 space-y-2 text-sm">

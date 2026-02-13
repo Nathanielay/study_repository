@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { BackButton } from 'app/components/back-button';
 import { useEffect, useState } from 'react';
 
 type WordNetworkItem = {
@@ -49,9 +50,7 @@ export default function ReviewPage() {
             <h1 className="text-xl font-semibold">Word Network Review</h1>
             <p className="text-xs text-gray-500">5 core words, 2 phrases each</p>
           </div>
-          <Link href="/learn/generate" className="text-sm font-semibold text-gray-600">
-            Back
-          </Link>
+          <BackButton />
         </header>
 
         {loading ? <p className="text-sm">Loading...</p> : null}
@@ -80,11 +79,6 @@ export default function ReviewPage() {
           ))}
         </div>
 
-        <div className="mt-6">
-          <Link href="/errors" className="text-sm font-semibold text-gray-700">
-            View error list
-          </Link>
-        </div>
       </div>
     </div>
   );

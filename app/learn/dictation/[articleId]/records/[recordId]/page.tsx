@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BackButton } from 'app/components/back-button';
 import { getArticleById, getDictationById } from 'app/db';
 import { buildReferenceHighlightHtml } from 'app/lib/dictation';
 
@@ -39,12 +40,7 @@ export default async function DictationRecordDetailPage({
               {record.extraCount}
             </p>
           </div>
-          <Link
-            href={`/learn/dictation/${record.articleId}/records`}
-            className="text-sm font-semibold text-gray-600"
-          >
-            Back
-          </Link>
+          <BackButton />
         </header>
 
         {article ? (

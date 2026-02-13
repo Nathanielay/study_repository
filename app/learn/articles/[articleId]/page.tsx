@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BackButton } from 'app/components/back-button';
 import { getArticleById } from 'app/db';
 
 export default async function ArticleDetailPage({
@@ -26,12 +27,7 @@ export default async function ArticleDetailPage({
             <p className="text-xs text-gray-500">{article.scene}</p>
             <h1 className="text-xl font-semibold">{article.title}</h1>
           </div>
-          <Link
-            href="/learn/articles"
-            className="text-sm font-semibold text-gray-600"
-          >
-            Back
-          </Link>
+          <BackButton />
         </header>
 
         <div className="rounded-xl border border-gray-200 bg-white p-4">
