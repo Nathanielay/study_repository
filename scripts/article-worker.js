@@ -67,6 +67,31 @@ function highlightByGlossary(content, glossary) {
   return next;
 }
 
+function normalizeGrammarNotes(value) {
+  if (typeof value === 'string') return value.trim();
+  if (Array.isArray(value)) {
+    const lines = value
+      .map((entry) => normalizeGrammarNotes(entry))
+      .filter(Boolean);
+    return lines.join('\n');
+  }
+  if (value && typeof value === 'object') {
+    const sentence = String(value.sentence || value.text || '').trim();
+    const note = String(
+      value.note || value.notes || value.grammar || value.analysis || ''
+    ).trim();
+    if (sentence && note) {
+      return `Sentence: ${sentence}\nNote: ${note}`;
+    }
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return '';
+    }
+  }
+  return '';
+}
+
 function safeJsonParse(raw) {
   let text = String(raw || '').trim();
   if (text.startsWith('```')) {
@@ -169,6 +194,10 @@ async function runOnce() {
         const article = await callLlm(prompt);
         const glossary = Array.isArray(article?.glossary) ? article.glossary : [];
         let contentZh = String(article.content_zh || '').trim();
+        const grammarNotes = normalizeGrammarNotes(article.grammar_notes);
+        if (!grammarNotes) {
+          throw new Error('LLM response missing grammar notes');
+        }
         if (!contentZh.includes('<mark>')) {
           if (glossary.length === 0) {
             throw new Error('LLM response missing glossary for highlights');
@@ -184,7 +213,7 @@ async function runOnce() {
             String(article.title || '').trim(),
             String(article.content_en || '').trim(),
             contentZh,
-            String(article.grammar_notes || '').trim(),
+            grammarNotes,
             JSON.stringify(wordList),
             JSON.stringify(manualWords),
           ]

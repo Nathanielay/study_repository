@@ -89,7 +89,7 @@ export async function generateArticleFromLlm(
     let title = String(parsed?.title ?? '').trim();
     let contentEn = String(parsed?.content_en ?? '').trim();
     let contentZh = String(parsed?.content_zh ?? '').trim();
-    let grammarNotes = String(parsed?.grammar_notes ?? '').trim();
+    let grammarNotes = normalizeGrammarNotes(parsed?.grammar_notes);
     let rawGlossary = Array.isArray(parsed?.glossary) ? parsed.glossary : [];
     let glossary = rawGlossary
       .map((entry: any) => ({
@@ -112,6 +112,32 @@ export async function generateArticleFromLlm(
   } finally {
     clearTimeout(timeout);
   }
+}
+
+function normalizeGrammarNotes(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  if (Array.isArray(value)) {
+    let lines = value
+      .map((entry) => normalizeGrammarNotes(entry))
+      .filter(Boolean);
+    return lines.join('\n');
+  }
+  if (value && typeof value === 'object') {
+    let record = value as Record<string, unknown>;
+    let sentence = String(record.sentence ?? record.text ?? '').trim();
+    let note = String(
+      record.note ?? record.notes ?? record.grammar ?? record.analysis ?? ''
+    ).trim();
+    if (sentence && note) {
+      return `Sentence: ${sentence}\nNote: ${note}`;
+    }
+    try {
+      return JSON.stringify(record, null, 2);
+    } catch {
+      return '';
+    }
+  }
+  return '';
 }
 
 function safeJsonParse(raw: string) {
