@@ -153,7 +153,7 @@ CREATE TABLE user_word_history (
 #### 默写提交
 - `POST /api/dictations`
 - 入参：`articleId`, `inputText`
-- 返回：`score`, `diffHtml`, `errors`
+- 返回：`score`, `referenceHtml`, `errors`, `spellingCount`, `missingCount`, `extraCount`, `analysis`
 
 #### 复盘词网
 - `GET /api/review/word-network?articleId=xxx`
@@ -187,6 +187,8 @@ CREATE TABLE user_word_history (
 - `/learn/articles`：历史短文列表
 - `/learn/articles/:articleId`：短文详情页
 - `/learn/dictation/:articleId`：短文默写训练
+- `/learn/dictation/:articleId/records`：训练记录列表
+- `/learn/dictation/:articleId/records/:recordId`：训练记录详情
 - `/review/:articleId`：复盘词网
 - `/errors`：错题本
 

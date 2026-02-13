@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .err {
+    border-radius: 0.25rem;
+    padding: 0 0.15rem;
+  }
+  .err.spelling {
+    background-color: #fde68a;
+  }
+  .err.missing {
+    background-color: #bfdbfe;
+  }
+  .err.extra {
+    background-color: #fed7aa;
+  }
+}

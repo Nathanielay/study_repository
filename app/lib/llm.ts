@@ -114,6 +114,61 @@ export async function generateArticleFromLlm(
   }
 }
 
+export async function analyzeDictationWithLlm(params: {
+  reference: string;
+  input: string;
+  spellingCount: number;
+  missingCount: number;
+  extraCount: number;
+}) {
+  let { baseUrl, apiKey, model, timeoutMs, reasoningEffort } = getLlmConfig();
+  if (!apiKey) return '';
+
+  let controller = new AbortController();
+  let timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    let prompt = [
+      'You are a strict English coach for exam dictation practice.',
+      'Analyze the user input against the reference text.',
+      'Focus on grammar, spelling, and likely missing words.',
+      'Respond in Chinese with concise bullet points.',
+      `Spelling errors: ${params.spellingCount}`,
+      `Missing words: ${params.missingCount}`,
+      `Extra words: ${params.extraCount}`,
+      `Reference: ${params.reference}`,
+      `User input: ${params.input}`,
+    ].join('\n');
+
+    let payload: Record<string, unknown> = {
+      model,
+      messages: [{ role: 'user', content: prompt } satisfies LlmMessage],
+      temperature: 0.2,
+    };
+    if (reasoningEffort) {
+      payload.reasoning_effort = reasoningEffort;
+    }
+
+    let response = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      let text = await response.text();
+      throw new Error(`LLM request failed: ${response.status} ${text}`);
+    }
+    let data = await response.json();
+    let content = data?.choices?.[0]?.message?.content ?? '';
+    return String(content).trim();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function normalizeGrammarNotes(value: unknown): string {
   if (typeof value === 'string') return value.trim();
   if (Array.isArray(value)) {

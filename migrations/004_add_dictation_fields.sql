@@ -1,0 +1,6 @@
+ALTER TABLE dictations
+  ADD COLUMN reference_html TEXT NULL,
+  ADD COLUMN analysis TEXT NULL,
+  ADD COLUMN spelling_count INT NOT NULL DEFAULT 0,
+  ADD COLUMN missing_count INT NOT NULL DEFAULT 0,
+  ADD COLUMN extra_count INT NOT NULL DEFAULT 0;

@@ -19,7 +19,7 @@ export function TabBar() {
           Home
         </Link>
         <Link
-          href="/learn/generate"
+          href="/learn/articles"
           className={isPractice ? 'text-black font-semibold' : 'text-gray-500'}
         >
           train

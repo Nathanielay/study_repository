@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { TabBar } from 'app/components/tab-bar';
 
@@ -13,6 +14,7 @@ const SCENES = [
 ];
 
 export default function GeneratePage() {
+  const router = useRouter();
   const [scene, setScene] = useState(SCENES[0]);
   const [wordCount, setWordCount] = useState(50);
   const [manualWords, setManualWords] = useState('');
@@ -71,6 +73,11 @@ export default function GeneratePage() {
       setTaskStatus(status);
       if (status === 'done') {
         setLoading(false);
+        let articleId = Number(statusData?.articleId ?? statusData?.article?.id ?? 0);
+        if (articleId) {
+          router.push(`/learn/articles/${articleId}`);
+          return;
+        }
         setArticle(statusData.article ?? null);
         return;
       }

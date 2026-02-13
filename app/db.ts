@@ -364,6 +364,11 @@ export async function createDictation(params: {
   inputText: string;
   normalizedText: string;
   score: number;
+  referenceHtml?: string | null;
+  analysis?: string | null;
+  spellingCount?: number;
+  missingCount?: number;
+  extraCount?: number;
   diffJson: unknown;
   errorWords: unknown;
 }) {
@@ -374,12 +379,41 @@ export async function createDictation(params: {
     inputText: params.inputText,
     normalizedText: params.normalizedText,
     score: params.score,
+    referenceHtml: params.referenceHtml ?? null,
+    analysis: params.analysis ?? null,
+    spellingCount: params.spellingCount ?? 0,
+    missingCount: params.missingCount ?? 0,
+    extraCount: params.extraCount ?? 0,
     diffJson: params.diffJson,
     errorWords: params.errorWords,
     createdAt: sql`NOW()`,
   });
   let insertId = (result as { insertId?: number }).insertId ?? null;
   return insertId;
+}
+
+export async function listDictationsByArticle(articleId: number) {
+  let db = getDb();
+  return await db
+    .select({
+      id: dictations.id,
+      score: dictations.score,
+      spellingCount: dictations.spellingCount,
+      missingCount: dictations.missingCount,
+      extraCount: dictations.extraCount,
+      createdAt: dictations.createdAt,
+    })
+    .from(dictations)
+    .where(eq(dictations.articleId, articleId))
+    .orderBy(desc(dictations.createdAt));
+}
+
+export async function getDictationById(dictationId: number) {
+  let db = getDb();
+  return await db
+    .select()
+    .from(dictations)
+    .where(eq(dictations.id, dictationId));
 }
 
 export async function listErrorWords(userId?: number | null) {

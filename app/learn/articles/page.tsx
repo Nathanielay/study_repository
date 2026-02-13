@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { TabBar } from 'app/components/tab-bar';
 
 type ArticleItem = {
   id: number;
@@ -38,12 +39,12 @@ export default function ArticlesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <div className="mx-auto max-w-screen-sm px-5 py-8">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Articles</h1>
           <Link href="/learn/generate" className="text-sm font-semibold text-gray-600">
-            Back
+            Generate
           </Link>
         </div>
 
@@ -65,6 +66,7 @@ export default function ArticlesPage() {
           ))}
         </div>
       </div>
+      <TabBar />
     </div>
   );
 }

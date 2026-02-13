@@ -94,6 +94,98 @@ export function buildDiffHtml(ops: DiffOp[]) {
   return parts.join(' ');
 }
 
+type HighlightResult = {
+  html: string;
+  spellingCount: number;
+  missingCount: number;
+  extraCount: number;
+  extraWords: string[];
+};
+
+export function buildReferenceHighlightHtml(
+  referenceText: string,
+  ops: DiffOp[]
+): HighlightResult {
+  let tokens: Array<{ type: 'word' | 'sep'; value: string }> = [];
+  let regex = /[a-zA-Z0-9']+|[^a-zA-Z0-9']+/g;
+  let match = regex.exec(referenceText);
+  while (match) {
+    let value = match[0];
+    let type = /[a-zA-Z0-9']+/.test(value) ? 'word' : 'sep';
+    tokens.push({ type, value });
+    match = regex.exec(referenceText);
+  }
+
+  let opIndex = 0;
+  let spellingCount = 0;
+  let missingCount = 0;
+  let extraCount = 0;
+  let extraWords: string[] = [];
+  let parts: string[] = [];
+
+  function pushWordWithOp(word: string, op: DiffOp) {
+    if (op.op === 'equal') {
+      parts.push(escapeHtml(word));
+      return;
+    }
+    if (op.op === 'replace') {
+      spellingCount += 1;
+      parts.push(`<span class="err spelling">${escapeHtml(word)}</span>`);
+      return;
+    }
+    if (op.op === 'delete') {
+      missingCount += 1;
+      parts.push(`<span class="err missing">${escapeHtml(word)}</span>`);
+      return;
+    }
+    parts.push(escapeHtml(word));
+  }
+
+  for (let item of tokens) {
+    if (item.type === 'sep') {
+      parts.push(escapeHtml(item.value));
+      continue;
+    }
+
+    while (opIndex < ops.length && ops[opIndex].op === 'insert') {
+      let insertOp = ops[opIndex] as { op: 'insert'; token: string };
+      extraWords.push(insertOp.token);
+      extraCount += 1;
+      opIndex += 1;
+    }
+
+    let op = ops[opIndex];
+    if (op && (op.op === 'equal' || op.op === 'replace' || op.op === 'delete')) {
+      pushWordWithOp(item.value, op);
+      opIndex += 1;
+      continue;
+    }
+
+    parts.push(escapeHtml(item.value));
+  }
+
+  while (opIndex < ops.length && ops[opIndex].op === 'insert') {
+    let insertOp = ops[opIndex] as { op: 'insert'; token: string };
+    extraWords.push(insertOp.token);
+    extraCount += 1;
+    opIndex += 1;
+  }
+
+  if (extraWords.length > 0) {
+    parts.push(
+      ` <span class="err extra">+ ${escapeHtml(extraWords.join(' '))}</span>`
+    );
+  }
+
+  return {
+    html: parts.join(''),
+    spellingCount,
+    missingCount,
+    extraCount,
+    extraWords,
+  };
+}
+
 export function extractErrorWords(ops: DiffOp[]) {
   let set = new Set<string>();
   for (let op of ops) {
