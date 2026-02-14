@@ -8,7 +8,7 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-const CORE_WORD_COUNT = 5;
+const CORE_WORD_COUNT = 10;
 const PHRASE_COUNT = 2;
 
 function buildPhrases(word: string) {
@@ -41,12 +41,28 @@ export async function GET(request: Request) {
   let wordList = Array.isArray(articleRows[0].wordList)
     ? articleRows[0].wordList
     : [];
-  let errors = await listErrorWords(null);
-  let errorWordList = errors.map((row) => row.word);
+  let errorRows = await listErrorWords(null);
+  let errorMap = new Map(
+    errorRows.map((row) => [row.word, { count: row.count, lastWrongAt: row.lastWrongAt }])
+  );
+  let errorWords = wordList
+    .filter((word) => errorMap.has(word))
+    .map((word) => ({
+      word,
+      count: errorMap.get(word)?.count ?? 0,
+      lastWrongAt: errorMap.get(word)?.lastWrongAt ?? null,
+    }))
+    .sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      let aTime = a.lastWrongAt ? new Date(a.lastWrongAt).getTime() : 0;
+      let bTime = b.lastWrongAt ? new Date(b.lastWrongAt).getTime() : 0;
+      return bTime - aTime;
+    })
+    .map((item) => item.word);
 
   let coreWords: string[] = [];
-  for (let word of errorWordList) {
-    if (coreWords.length >= Math.floor(CORE_WORD_COUNT / 2)) break;
+  for (let word of errorWords) {
+    if (coreWords.length >= CORE_WORD_COUNT) break;
     if (!coreWords.includes(word)) coreWords.push(word);
   }
   for (let word of wordList) {
@@ -54,12 +70,12 @@ export async function GET(request: Request) {
     if (!coreWords.includes(word)) coreWords.push(word);
   }
 
-  let items = coreWords.map((word, index) => ({
+  let items = coreWords.map((word) => ({
     word,
     phrases: buildPhrases(word).slice(0, PHRASE_COUNT),
     cn: '（释义占位）',
-    isNew: index >= Math.ceil(CORE_WORD_COUNT / 2),
-    source: index < Math.floor(CORE_WORD_COUNT / 2) ? 'error' : 'article',
+    isNew: false,
+    source: errorMap.has(word) ? 'error' : 'article',
   }));
 
   await upsertWordNetworkCache({
