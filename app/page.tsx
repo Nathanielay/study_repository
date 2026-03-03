@@ -32,7 +32,7 @@ export default async function Page() {
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="mx-auto max-w-screen-sm px-5 py-8">
         <header className="mb-6">
-          <h1 className="text-2xl font-semibold">Word Learning</h1>
+          <h1 className="text-2xl font-semibold">知和识</h1>
           <p className="mt-1 text-sm text-gray-500">
             Learn words with quick, focused sessions.
           </p>
